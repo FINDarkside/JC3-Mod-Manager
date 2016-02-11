@@ -1,0 +1,143 @@
+﻿<Window x:Class="Just_Cause_3_Mod_Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+		xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+		xmlns:local="clr-namespace:Just_Cause_3_Mod_Manager"
+        Title="Just Cause 3 Mod Manager" Height="600" Width="900" Loaded="Window_Loaded">
+	<Window.Resources>
+		<local:CategoryToStringConverter x:Key="CategoryToStringConverter" />
+		<local:CategoryNameToBooleanConverter x:Key="CategoryNameToBooleanConverter" />
+	</Window.Resources>
+	<xctk:BusyIndicator Name="busyIndicator" IsBusy="False">
+		<xctk:BusyIndicator.ProgressBarStyle>
+			<Style TargetType="ProgressBar">
+				<Setter Property="Height" Value="18"/>
+				<Setter Property="IsIndeterminate" Value="True"/>
+				<Setter Property="Foreground" Value="#FF0582FF"/>
+				<Setter Property="Background" Value="Transparent"/>
+				<Setter Property="BorderBrush" Value="Transparent"/>
+				<Setter Property="Margin" Value="0 0 0 4"/>
+			</Style>
+		</xctk:BusyIndicator.ProgressBarStyle>
+
+		<Grid>
+			<Grid.Background>
+				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+					<GradientStop Color="#FF81C0FF" Offset="1"/>
+					<GradientStop Color="#FF0582FF" Offset="0.031"/>
+				</LinearGradientBrush>
+			</Grid.Background>
+			<Grid Margin="20 0 20 5">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
+				<Image Name="img" Grid.Row="0" Stretch="Uniform" Source="Images/jc3_logo_transparent_150.png" MaxHeight="150"></Image>
+				<Grid Grid.Row="1" Margin="0 10 0 5">
+					<DataGrid CanUserAddRows="False" CanUserResizeRows="False" ItemsSource="{Binding ModsView}" AutoGenerateColumns="False" RowHeaderWidth="0">
+						<DataGrid.Columns>
+							<DataGridTemplateColumn Header="Mod" Width="*">
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate>
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="auto"/>
+											</Grid.ColumnDefinitions>
+											<Label Grid.Column="0" Content="{Binding Name}" />
+											<StackPanel Orientation="Horizontal" Grid.Column="1">
+												<CheckBox VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding Active, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+												<Image Margin="5 0 0 0" Source="Images/tool.png" Height="auto"></Image>
+											</StackPanel>
+										</Grid>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+								<DataGridTemplateColumn.CellEditingTemplate>
+									<DataTemplate>
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="auto"/>
+											</Grid.ColumnDefinitions>
+											<TextBox VerticalContentAlignment="Center" Grid.Column="0" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											<StackPanel Orientation="Horizontal" Grid.Column="1">
+												<CheckBox VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding Active, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+												<Image Margin="5 0 0 0" Source="Images/tool.png"></Image>
+											</StackPanel>
+										</Grid>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellEditingTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Header="Category" Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate>
+										<ComboBox Text="{Binding Category, Mode=TwoWay,Converter={StaticResource CategoryToStringConverter}, UpdateSourceTrigger=LostFocus}" IsEditable="True" ItemsSource="{Binding Source={x:Static local:ModManager.Categories}}">
+											<i:Interaction.Triggers>
+												<i:EventTrigger EventName="LostFocus">
+													<i:InvokeCommandAction Command="{Binding Command}" />
+												</i:EventTrigger>
+											</i:Interaction.Triggers>
+										</ComboBox>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Header="Mod version" Width="auto">
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate>
+										<Label Content="{Binding Info.Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Header="Author" Width="auto">
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate>
+										<Label Content="{Binding Path=Info.Author, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+						</DataGrid.Columns>
+						<DataGrid.GroupStyle>
+							<GroupStyle>
+								<GroupStyle.Panel>
+									<ItemsPanelTemplate>
+										<DataGridRowsPresenter/>
+									</ItemsPanelTemplate>
+								</GroupStyle.Panel>
+								<GroupStyle.ContainerStyle>
+									<Style TargetType="{x:Type GroupItem}">
+										<Setter Property="Template">
+											<Setter.Value>
+												<ControlTemplate TargetType="{x:Type GroupItem}">
+													<Expander IsExpanded="{Binding Path=Name.IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+														<Expander.Header>
+															<StackPanel Orientation="Horizontal">
+																<TextBlock Text="{Binding Path=Name}" />
+																<TextBlock Text=" (" />
+																<TextBlock Text="{Binding Path=ItemCount}"/>
+																<TextBlock Text=")" />
+															</StackPanel>
+														</Expander.Header>
+														<ItemsPresenter />
+													</Expander>
+												</ControlTemplate>
+											</Setter.Value>
+										</Setter>
+									</Style>
+								</GroupStyle.ContainerStyle>
+							</GroupStyle>
+						</DataGrid.GroupStyle>
+					</DataGrid>
+				</Grid>
+				<Grid Grid.Row="2">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="auto"/>
+					</Grid.ColumnDefinitions>
+					<Button Grid.Column="1" Width="200"  MinWidth="100" Click="Button_Click">Apply</Button>
+				</Grid>
+			</Grid>
+		</Grid>
+	</xctk:BusyIndicator>
+</Window>
