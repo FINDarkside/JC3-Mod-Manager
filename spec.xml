@@ -1,0 +1,32 @@
+<Mod>
+	<DefaultName>Superman Mod</DefaultName> <!-- Optional -->
+	<Author>Choklad</Author> 
+	<ModPage>http://justcause3mods.com/mods/superman-mod/</ModPage><!-- Must be justcause3mods.com mod page. Will be used to check for new versions -->
+	<Version>1</Version>
+	<Settings>
+		<FormatVersion>1</FormatVersion> <!-- Don't change! This is needed in case I change the format of settings -->
+		<Tab Name="TestPanel">
+			<FloatUpDown Description="Player speed" Path="AAAAAA.OPEASDAS.ASDASD">
+				<Setter ></Setter>
+			</FloatUpDown>
+			<Slider Description="Test" Path="ASDASDA" MaxVal="0" MinVal = "-50"></Slider>
+			<ComboBox Description="testBox" Path="FFFFFFFF">
+				<ComboBoxItem Name="Item1">
+					<value file="testshit.dds" path="FFFFFF">shit</value>
+					<value path="FFFFFF">shit</value>
+					<value path="FFFFFF">shit</value>
+					<value path="FFFFFF">shit</value>
+					<value path="FFFFFF">shit</value>
+				</ComboBoxItem>
+			</ComboBox>
+			<CheckBox Description="Invisible">
+				<Checked>
+					<setValue Path="FFFFFF">123123</value>
+				</Checked>
+				<Unchecked>
+					<setValue Path="FFFFFF">0</value>
+				</Unchecked>
+			</CheckBox>
+		</Tab>
+	</Settings>
+</Mod>

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Ookii.Dialogs;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -8,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 
 namespace Just_Cause_3_Mod_Manager
 {
@@ -18,6 +18,7 @@ namespace Just_Cause_3_Mod_Manager
 	public partial class MainWindow : Window
 	{
 		public ListCollectionView ModsView { get; set; }
+		public List<Task> tasks = new List<Task>();
 
 		public MainWindow()
 		{
@@ -29,10 +30,18 @@ namespace Just_Cause_3_Mod_Manager
 #if !DEBUG
 			CheckForUpdates();
 #endif
+			tasks.Add(GameFiles.LoadFileNames());
 			ModManager.Init();
 			ModsView = ModManager.ModsView;
 			InitializeComponent();
 			Title += " r" + Settings.revision;
+
+			this.Drop += (sender, e) =>
+			{
+				FileDrop(sender, e);
+			};
+
+
 
 			this.DataContext = this;
 			Settings.mainWindow = this;
@@ -67,6 +76,35 @@ namespace Just_Cause_3_Mod_Manager
 			Settings.local.Save();
 		}
 
+		public async Task CompleteTasks()
+		{
+			Settings.SetBusyContent("Waiting");
+			for (var i = tasks.Count - 1; i >= 0; i--)
+			{
+				if (!tasks[i].IsCompleted)
+					await tasks[i];
+				tasks.RemoveAt(i);
+			}
+			Settings.SetBusyContent(null);
+		}
+
+		public async void FileDrop(object sender, DragEventArgs e)
+		{
+			await CompleteTasks();
+
+			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+
+				string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+				Settings.SetBusyContent("Extracting and determining mod files");
+
+				await ModManager.AddMod(files);
+
+				Settings.SetBusyContent(null);
+
+			}
+		}
+
 		private static void CheckForUpdates()
 		{
 			if (Settings.user.checkForUpdates && System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
@@ -95,7 +133,12 @@ namespace Just_Cause_3_Mod_Manager
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
-			ModsView.Refresh();
+			
+		}
+
+		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			ModManager.Save();
 		}
 	}
 }

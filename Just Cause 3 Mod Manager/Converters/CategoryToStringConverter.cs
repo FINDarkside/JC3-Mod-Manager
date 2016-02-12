@@ -14,23 +14,13 @@ namespace Just_Cause_3_Mod_Manager
 
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			Debug.WriteLine("Converting cat to string");
 			var category = (Category)value;
-			return category.Name;
+			return category != null ? category.Name : null;
 		}
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			Debug.WriteLine("Converting back");
-
-			string s = (string)value;
-			var cats = ModManager.Categories.Where(cat => cat.Name.Equals(s, StringComparison.InvariantCultureIgnoreCase)).ToArray();
-			if (cats.Length > 0)
-			{
-				return cats[0];
-			}
-			var category = new Category(s, true);
-			ModManager.Categories.Add(category);
-			return category;
+			var cat = ModManager.GetCategory((string)value);
+			return cat;
 		}
 
 	}

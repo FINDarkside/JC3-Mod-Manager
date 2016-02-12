@@ -9,7 +9,7 @@ using System.Windows.Data;
 
 namespace Just_Cause_3_Mod_Manager
 {
-	public class ObjectToBoolVisibility : IValueConverter
+	public class ObjectToVisibilityConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{

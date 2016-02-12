@@ -1,21 +1,28 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Xml;
 
 namespace Just_Cause_3_Mod_Manager
 {
 	public class Mod : INotifyPropertyChanged
 	{
-		private int id;
-		public int Id
+		private string id;
+		public string Id
 		{
 			get { return id; }
-			set { SetPropertyField(ref id, value); }
+			set
+			{
+				Folder = Path.Combine(Settings.modFolder, value);
+				SetPropertyField(ref id, value);
+			}
 		}
 
 		private string name;
@@ -39,13 +46,6 @@ namespace Just_Cause_3_Mod_Manager
 			set { SetPropertyField(ref category, value); }
 		}
 
-		private string path;
-		public string Path
-		{
-			get { return path; }
-			set { SetPropertyField(ref path, value); }
-		}
-
 		private ModInfo info;
 		public ModInfo Info
 		{
@@ -53,6 +53,26 @@ namespace Just_Cause_3_Mod_Manager
 			set { SetPropertyField(ref info, value); }
 		}
 
+		private string folder = null;
+		[JsonIgnore]
+		public string Folder
+		{
+			get { return folder; }
+			private set { folder = value; }
+		}
+
+		[JsonIgnore]
+		public ICommand ShowSettingsCommand { get; set; }
+
+		public Mod()
+		{
+			ShowSettingsCommand = new CommandHandler(() => ShowSettings(), true);
+		}
+
+		public void ShowSettings()
+		{
+			ErrorDialog.Show("Not implemented yet");
+		}
 
 		protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null)
 		{
@@ -69,7 +89,7 @@ namespace Just_Cause_3_Mod_Manager
 
 	}
 
-	public class ModInfo : INotifyPropertyChanged 
+	public class ModInfo : INotifyPropertyChanged
 	{
 		private string author;
 		public string Author
@@ -99,8 +119,8 @@ namespace Just_Cause_3_Mod_Manager
 			set { SetPropertyField(ref defaultName, value); }
 		}
 
-		private XmlDocument settings;
-		public XmlDocument Settings
+		private XmlElement settings;
+		public XmlElement Settings
 		{
 			get { return settings; }
 			set { SetPropertyField(ref settings, value); }

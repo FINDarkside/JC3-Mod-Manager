@@ -33,6 +33,7 @@ namespace Just_Cause_3_Mod_Manager
 				user = JsonConvert.DeserializeObject<UserSettings>(File.ReadAllText(settingsPath));
 			else
 				user = new UserSettings();
+			user.JC3Folder = @"C:\Program Files (x86)\Steam\SteamApps\common\Just Cause 3\";
 
 			var localPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "JC3 Mod Manager");
 			Directory.CreateDirectory(localPath);
