@@ -34,7 +34,7 @@ namespace Just_Cause_3_Mod_Manager
 			return gameFiles.Contains(Path.GetFileName(file));
 		}
 
-		public static Task LoadFileNames(){
+		public static Task LoadFileNamesAsync(){
 			return Task.Run(()=>{
 				var fileLists = new List<string>();
 				fileLists.AddRange(Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "archives_win64"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")));
@@ -62,8 +62,6 @@ namespace Just_Cause_3_Mod_Manager
 
 		public static List<string> GetDefaultFiles(string fileName)
 		{
-			Settings.SetBusyContent("Finding default files for " + fileName + "...");
-
 			var result = new List<string>();
 			var cachedFiles = Directory.EnumerateFiles(Settings.defaultFiles, Path.GetFileNameWithoutExtension(fileName) + "_*" + Path.GetExtension(fileName), SearchOption.AllDirectories);
 			foreach (var file in cachedFiles)
@@ -114,8 +112,6 @@ namespace Just_Cause_3_Mod_Manager
 			{
 				File.Delete(file);
 			}
-
-			Settings.SetBusyContent("Extracting default files from Just Cause 3 archives...");
 
 			foreach (var fileInfo in fileInfos)
 			{

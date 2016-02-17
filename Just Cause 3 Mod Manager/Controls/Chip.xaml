@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="Just_Cause_3_Mod_Manager.Chip"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" Name="ChipElement"
+             d:DesignHeight="300" d:DesignWidth="300">
+	<WrapPanel>
+		<Border Name="chipBorder" CornerRadius="16 16 16 16" MouseEnter="Border_MouseEnter" MouseLeave="Border_MouseLeave" Cursor="Hand">
+			<Border.Effect>
+				<DropShadowEffect x:Name="dropShadowEffect" BlurRadius="8" ShadowDepth="1.5" Direction="270" Color="#AA000000" Opacity="0" RenderingBias="Performance"></DropShadowEffect>
+			</Border.Effect>
+			<Border.InputBindings>
+				<MouseBinding MouseAction="LeftClick" Command="{Binding ElementName=ChipElement, Path=ChipClickedCommand}"/>
+			</Border.InputBindings>
+			<StackPanel x:Name="test" Orientation="Horizontal" Height="32">
+				<Border Name="firstValueBorder" Padding="8 5 8 5" Background="White" CornerRadius="16 0 0 16">
+					<TextBlock Name="tbFirstValue" FontSize="10" Foreground="#CC000000" FontWeight="400" VerticalAlignment="Center" Text="{Binding ElementName=ChipElement, Path=FirstValue}"></TextBlock>
+				</Border>
+				<Border Name="secondValueBorder" Padding="8 5 8 5" Background="#e9e9e9" CornerRadius="0 16 16 0" >
+					<TextBlock Name="tbSecondValue" FontSize="10" Foreground="#999" VerticalAlignment="Center" Text="{Binding ElementName=ChipElement, Path=SecondValue}"/>
+				</Border>
+			</StackPanel>
+		</Border>
+	</WrapPanel>
+</UserControl>

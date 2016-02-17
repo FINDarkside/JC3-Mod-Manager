@@ -1,7 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using Ookii.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -17,8 +19,6 @@ namespace Just_Cause_3_Mod_Manager
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public ListCollectionView ModsView { get; set; }
-		public List<Task> tasks = new List<Task>();
 
 		public MainWindow()
 		{
@@ -30,9 +30,10 @@ namespace Just_Cause_3_Mod_Manager
 #if !DEBUG
 			CheckForUpdates();
 #endif
-			tasks.Add(GameFiles.LoadFileNames());
+			TaskManager.AddBackgroundTask("Loading jc3 file names", GameFiles.LoadFileNamesAsync());
+
 			ModManager.Init();
-			ModsView = ModManager.ModsView;
+
 			InitializeComponent();
 			Title += " r" + Settings.revision;
 
@@ -40,8 +41,6 @@ namespace Just_Cause_3_Mod_Manager
 			{
 				FileDrop(sender, e);
 			};
-
-
 
 			this.DataContext = this;
 			Settings.mainWindow = this;
@@ -55,8 +54,6 @@ namespace Just_Cause_3_Mod_Manager
 
 				if (Directory.Exists(defaultFilesPath))
 				{
-					busyIndicator.IsBusy = true;
-					busyIndicator.BusyContent = "Moving default file cache from " + defaultFilesPath;
 					await Task.Run(() =>
 					{
 						foreach (var file in Directory.EnumerateFiles(defaultFilesPath, "*", SearchOption.AllDirectories))
@@ -69,40 +66,31 @@ namespace Just_Cause_3_Mod_Manager
 							}
 						}
 					});
-					busyIndicator.IsBusy = false;
 				}
 			}
 
 			Settings.local.Save();
 		}
 
-		public async Task CompleteTasks()
-		{
-			Settings.SetBusyContent("Waiting");
-			for (var i = tasks.Count - 1; i >= 0; i--)
-			{
-				if (!tasks[i].IsCompleted)
-					await tasks[i];
-				tasks.RemoveAt(i);
-			}
-			Settings.SetBusyContent(null);
-		}
-
 		public async void FileDrop(object sender, DragEventArgs e)
 		{
-			await CompleteTasks();
-
+			await TaskManager.WaitForTasks();
+			TaskManager.SetBusyContent("Installing mod");
 			if (e.Data.GetDataPresent(DataFormats.FileDrop))
 			{
-
 				string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-				Settings.SetBusyContent("Extracting and determining mod files");
-
-				await ModManager.AddMod(files);
-
-				Settings.SetBusyContent(null);
+				try
+				{
+					await ModManager.AddMod(files);
+				}
+				catch (Exception ex)
+				{
+					Errors.Handle("Failed to install mod", ex);
+				}
 
 			}
+			TaskManager.SetBusyContent(null);
+			TaskManager.AddBackgroundTask("Deleting temporary files" ,TempFolder.ClearAsync());
 		}
 
 		private static void CheckForUpdates()
@@ -133,12 +121,13 @@ namespace Just_Cause_3_Mod_Manager
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
-			
+			ModManager.AddMod(new Mod() { Name = "testmod" });
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			ModManager.Save();
 		}
+
 	}
 }

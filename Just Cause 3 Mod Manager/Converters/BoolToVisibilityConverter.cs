@@ -9,16 +9,16 @@ using System.Windows.Data;
 
 namespace Just_Cause_3_Mod_Manager
 {
-	public class ObjectToVisibilityConverter : IValueConverter
+	class BoolToVisibilityConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return value == null ? Visibility.Collapsed : Visibility.Visible;
+			return (bool)value ? Visibility.Visible : Visibility.Collapsed;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return Binding.DoNothing;
+			return (Visibility)value == Visibility.Visible ? true : false;
 		}
 	}
 }

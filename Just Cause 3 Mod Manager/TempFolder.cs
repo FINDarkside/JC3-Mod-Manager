@@ -62,7 +62,7 @@ namespace Just_Cause_3_Mod_Manager
 					{
 						file.Delete();
 					}
-					catch (Exception ex) { }
+					catch (Exception) { }
 				}
 
 				foreach (DirectoryInfo dir in di.GetDirectories())
@@ -71,7 +71,7 @@ namespace Just_Cause_3_Mod_Manager
 					{
 						dir.Delete(true);
 					}
-					catch (Exception ex) { }
+					catch (Exception) { }
 				}
 
 				charIndexes = new int[1];

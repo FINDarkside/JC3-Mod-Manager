@@ -44,14 +44,6 @@ namespace Just_Cause_3_Mod_Manager
 				local = new LocalSettings();
 		}
 
-		public static void SetBusyContent(string text)
-		{
-			Settings.mainWindow.Dispatcher.BeginInvoke((Action)delegate
-			{
-				Settings.mainWindow.busyIndicator.IsBusy = text != null;
-				Settings.mainWindow.busyIndicator.BusyContent = text;
-			});
-		}
 
 
 	}

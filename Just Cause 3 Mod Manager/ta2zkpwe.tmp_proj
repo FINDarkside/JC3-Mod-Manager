@@ -34,90 +34,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dragablz, Version=0.0.3.153, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dragablz.0.0.3.153\lib\net45\Dragablz.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MaterialDesignColors">
-      <HintPath>..\packages\MaterialDesignColors.1.1.2\lib\net45\MaterialDesignColors.dll</HintPath>
-    </Reference>
-    <Reference Include="MaterialDesignThemes.Wpf">
-      <HintPath>..\packages\MaterialDesignThemes.1.4.1.485\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Ookii.Dialogs">
-      <HintPath>..\..\Just Cause 3 Mod Combiner\Just Cause 3 Mod Combiner\bin\Release\Ookii.Dialogs.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpCompress">
-      <HintPath>..\packages\sharpcompress.0.11.4\lib\net40\SharpCompress.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="Xceed.Wpf.Toolkit">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.6\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="Category.cs" />
-    <Compile Include="Controls\ConfirmationDialogViewModel.cs" />
-    <Compile Include="Controls\Chip.xaml.cs">
-      <DependentUpon>Chip.xaml</DependentUpon>
-    </Compile>
     <Compile Include="CommandHandler.cs" />
+    <Compile Include="Controls\ModEditDialog.xaml.cs">
+      <DependentUpon>ModEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ErrorDialog.xaml.cs">
       <DependentUpon>ErrorDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\CategoryToStringConverter.cs" />
-    <Compile Include="Converters\DivideAndFloorConverter.cs" />
-    <Compile Include="Converters\ModVisibilityConverter.cs" />
-    <Compile Include="Converters\RemoveFirstItemConverter.cs" />
-    <Compile Include="Converters\StringToUpperCaseConverter.cs" />
     <Compile Include="Errors.cs" />
     <Compile Include="GameFiles.cs" />
     <Compile Include="GibbedsTools.cs" />
-    <Compile Include="Mod Settings\ModSettingsField.cs" />
-    <Compile Include="Mod Settings\ModSettingsSetter.cs" />
-    <Compile Include="Mod Settings\ModSettingsTab.cs" />
     <Compile Include="ModManager.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Converters\ObjectToVisibilityConverter.cs" />
-    <Compile Include="Mod Settings\ModSettingsViewModel.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="TaskManager.cs" />
     <Compile Include="TempFolder.cs" />
     <Compile Include="Util.cs" />
-    <Page Include="Controls\Chip.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\ErrorDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -156,14 +91,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\jc3_logo_transparent_150.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\tool.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Mod Combiner\Combiners\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -172,4 +103,31 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Microsoft.CSharp.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll" />
+    <ReferencePath Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll" />
+    <ReferencePath Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Combiner\Just Cause 3 Mod Combiner\bin\Release\Ookii.Dialogs.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\PresentationCore.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\PresentationFramework.dll" />
+    <ReferencePath Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\packages\sharpcompress.0.11.4\lib\net40\SharpCompress.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Core.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.DataSetExtensions.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Drawing.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xaml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.Linq.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\WindowsBase.dll" />
+    <ReferencePath Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\packages\Extended.Wpf.Toolkit.2.6\lib\net40\Xceed.Wpf.Toolkit.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\Just Cause 3 Mod Manager\obj\Debug\Controls\ModEditDialog.g.cs" />
+    <Compile Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\Just Cause 3 Mod Manager\obj\Debug\Controls\ErrorDialog.g.cs" />
+    <Compile Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\Just Cause 3 Mod Manager\obj\Debug\MainWindow.g.cs" />
+    <Compile Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\Just Cause 3 Mod Manager\obj\Debug\App.g.cs" />
+    <Compile Include="C:\Users\Jesse\Ohjelmointi\C#\Just Cause 3\Just Cause 3 Mod Manager\Just Cause 3 Mod Manager\obj\Debug\GeneratedInternalTypeHelper.g.cs" />
+  </ItemGroup>
 </Project>

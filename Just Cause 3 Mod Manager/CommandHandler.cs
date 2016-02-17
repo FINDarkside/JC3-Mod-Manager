@@ -11,10 +11,10 @@ namespace Just_Cause_3_Mod_Manager
 	{
 		private Action _action;
 		private bool _canExecute;
-		public CommandHandler(Action action, bool canExecute)
+		public CommandHandler(Action action)
 		{
 			_action = action;
-			_canExecute = canExecute;
+			_canExecute = true;
 		}
 
 		public bool CanExecute(object parameter)
