@@ -19,7 +19,7 @@ namespace Just_Cause_3_Mod_Manager
 		}
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var cat = ModManager.GetCategory((string)value);
+			var cat = ModManager.Instance.GetCategory((string)value);
 			return cat;
 		}
 

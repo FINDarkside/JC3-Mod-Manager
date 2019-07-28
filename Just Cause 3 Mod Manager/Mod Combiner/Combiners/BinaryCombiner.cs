@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace Just_Cause_3_Mod_Combiner
+namespace Just_Cause_3_Mod_Manager
 {
 	public class BinaryCombiner
 	{

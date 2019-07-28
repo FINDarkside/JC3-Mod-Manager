@@ -95,6 +95,7 @@ namespace Just_Cause_3_Mod_Manager
 			{
 				if (this.Info.Settings != null && this.Info.Settings.Tabs.Count > 0)
 					MaterialDesignThemes.Wpf.DialogHost.Show(this.Info.Settings);
+				MaterialDesignThemes.Wpf.DialogHost.Show(this.Info.Settings);
 			});
 			OpenModPageCommand = new CommandHandler(() =>
 			{
@@ -110,8 +111,8 @@ namespace Just_Cause_3_Mod_Manager
 				var result = (bool)await MaterialDesignThemes.Wpf.DialogHost.Show(new ConfirmationDialogViewModel("Are you sure?"));
 				if (result)
 				{
-					this.category = null;
-					ModManager.Mods.Remove(this);
+					this.Category = null;
+					ModManager.Instance.Mods.Remove(this);
 					TaskManager.AddBackgroundTask("Deleting " + Name, Task.Run(() =>
 					{
 						if (folder != null && Directory.Exists(folder))
@@ -126,7 +127,7 @@ namespace Just_Cause_3_Mod_Manager
 			if (info.ModPage == null)
 				return;
 			string host = new Uri(Info.ModPage).Host;
-			Debug.WriteLine(host);
+
 			if (host != "justcause3mods.com")
 				return;
 			if (Settings.user.checkForUpdates && System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())

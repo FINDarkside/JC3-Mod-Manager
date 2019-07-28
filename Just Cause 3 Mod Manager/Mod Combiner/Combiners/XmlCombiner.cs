@@ -5,7 +5,7 @@ using System.Xml;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Just_Cause_3_Mod_Combiner
+namespace Just_Cause_3_Mod_Manager
 {
 	public static class XmlCombiner
 	{
@@ -54,7 +54,6 @@ namespace Just_Cause_3_Mod_Combiner
 
 			if (result.NodeType == XmlNodeType.Text)
 			{
-				System.Diagnostics.Debug.WriteLine(result.Value);
 				foreach (var node in originalNodes)
 					if (node.NodeType != XmlNodeType.Text)
 						throw new Exception("All original nodes are not text nodes. Post a comment at jc3mods telling what mods you were trying to combine.");

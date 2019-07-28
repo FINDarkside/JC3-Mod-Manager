@@ -78,26 +78,36 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Category.cs" />
+    <Compile Include="Controls\BusyDialogViewModel.cs" />
+    <Compile Include="Controls\ProgressDialogViewModel.cs" />
     <Compile Include="Controls\ConfirmationDialogViewModel.cs" />
     <Compile Include="Controls\Chip.xaml.cs">
       <DependentUpon>Chip.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommandHandler.cs" />
+    <Compile Include="Mod Combiner\SelectionDialog.cs" />
+    <Compile Include="Util\CommandHandler.cs" />
     <Compile Include="Controls\ErrorDialog.xaml.cs">
       <DependentUpon>ErrorDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\CategoryToStringConverter.cs" />
     <Compile Include="Converters\DivideAndFloorConverter.cs" />
+    <Compile Include="Converters\ModCardWidthConverter.cs" />
     <Compile Include="Converters\ModVisibilityConverter.cs" />
-    <Compile Include="Converters\RemoveFirstItemConverter.cs" />
     <Compile Include="Converters\StringToUpperCaseConverter.cs" />
     <Compile Include="Errors.cs" />
     <Compile Include="GameFiles.cs" />
     <Compile Include="GibbedsTools.cs" />
+    <Compile Include="Mod Combiner\Combiners\BinaryCombiner.cs" />
+    <Compile Include="Mod Combiner\Combiners\Combiner.cs" />
+    <Compile Include="Mod Combiner\Combiners\NodeDictionary.cs" />
+    <Compile Include="Mod Combiner\Combiners\XmlCombiner.cs" />
+    <Compile Include="Mod Combiner\Combiners\XmlTools.cs" />
+    <Compile Include="Mod Combiner\FileFormats.cs" />
     <Compile Include="Mod Settings\ModSettingsField.cs" />
     <Compile Include="Mod Settings\ModSettingsSetter.cs" />
     <Compile Include="Mod Settings\ModSettingsTab.cs" />
+    <Compile Include="ModInstaller.cs" />
     <Compile Include="ModManager.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Converters\ObjectToVisibilityConverter.cs" />
@@ -105,7 +115,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="TaskManager.cs" />
     <Compile Include="TempFolder.cs" />
-    <Compile Include="Util.cs" />
+    <Compile Include="Util\Util.cs" />
     <Page Include="Controls\Chip.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -161,9 +171,7 @@
   <ItemGroup>
     <Resource Include="Images\tool.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Mod Combiner\Combiners\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

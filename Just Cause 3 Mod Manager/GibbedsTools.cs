@@ -23,6 +23,7 @@ namespace Just_Cause_3_Mod_Manager
 		public static string smallUnpack = Path.Combine(Settings.gibbedsTools, "Gibbed.JustCause3.SmallUnpack.exe");
 		public static string convertAdf = Path.Combine(Settings.gibbedsTools, "Gibbed.JustCause3.ConvertAdf.exe");
 		public static string unpack = Path.Combine(Settings.gibbedsTools, "Gibbed.JustCause3.Unpack.exe");
+		public static string pack = Path.Combine(Settings.gibbedsTools, "Gibbed.JustCause3.Pack.exe");
 
 		public static string ConvertProperty(string inputPath)
 		{
@@ -98,6 +99,29 @@ namespace Just_Cause_3_Mod_Manager
 			if (Directory.Exists(outputPath))
 				return outputPath;
 			return null;
+		}
+
+		public static void SkyFortressPack()
+		{
+
+			Directory.CreateDirectory(Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress"));
+
+			Process p = new Process();
+			p.StartInfo = new ProcessStartInfo(pack, "-o \"" + Path.Combine(Settings.user.JC3Folder, "dropzone_sky_fortress") + "\"");
+			p.StartInfo.UseShellExecute = false;
+			p.StartInfo.CreateNoWindow = true;
+			p.Start();
+			p.WaitForExit();
+
+			Debug.WriteLine("-o \"" + Path.Combine(Settings.user.JC3Folder, "dropzone_sky_fortress") + "\"");
+
+			if (File.Exists(Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress\\game3.arc")))
+				File.Delete(Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress\\game3.arc"));
+			if (File.Exists(Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress\\game3.tab")))
+				File.Delete(Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress\\game3.tab"));
+
+			File.Move(Path.Combine(Settings.user.JC3Folder, "dropzone_sky_fortress.arc"), Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress\\game3.arc"));
+			File.Move(Path.Combine(Settings.user.JC3Folder, "dropzone_sky_fortress.tab"), Path.Combine(Settings.user.JC3Folder, "dlc_win64\\sky_fortress\\game3.tab"));
 		}
 
 		private static void Run(string fileName, string args)

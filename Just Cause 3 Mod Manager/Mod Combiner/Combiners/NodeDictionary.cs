@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace Just_Cause_3_Mod_Combiner
+namespace Just_Cause_3_Mod_Manager
 {
 	public class NodeDictionary : Dictionary<string, XmlNode>
 	{

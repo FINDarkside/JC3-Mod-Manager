@@ -27,39 +27,6 @@ namespace Just_Cause_3_Mod_Manager
 			}
 		}
 
-		private static HashSet<string> gameFiles = new HashSet<string>();
-
-		public static bool IsGameFile(string file)
-		{
-			return gameFiles.Contains(Path.GetFileName(file));
-		}
-
-		public static Task LoadFileNamesAsync(){
-			return Task.Run(()=>{
-				var fileLists = new List<string>();
-				fileLists.AddRange(Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "archives_win64"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")));
-				if (Directory.Exists(Path.Combine(Settings.user.JC3Folder, "dlc")))
-					fileLists.AddRange(Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "dlc"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")).ToList<string>());
-				if (Directory.Exists(Path.Combine(Settings.user.JC3Folder, "patch_win64")))
-					fileLists.AddRange(Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "patch_win64")).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")).ToList<string>());
-
-				foreach (var fileList in fileLists)
-				{
-					var lines = File.ReadAllLines(fileList);
-					for (var i = 2; i < lines.Length; i++)
-					{
-						var line = lines[i];
-						if (line != null && line.Contains("/"))
-						{
-							gameFiles.Add(line.Substring(line.LastIndexOf("/") + 1));
-						}
-					}
-				}
-			});
-		}
-
-
-
 		public static List<string> GetDefaultFiles(string fileName)
 		{
 			var result = new List<string>();
@@ -71,20 +38,16 @@ namespace Just_Cause_3_Mod_Manager
 			//Find file from jc3 folders
 
 			var fileLists = new List<string>();
-			fileLists.AddRange(Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "archives_win64"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")));
+			fileLists.AddRange(Directory.EnumerateFiles(Path.Combine(Settings.files, "Filenames", "archives_win64"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")));
 			fileLists = fileLists.OrderBy(s => int.Parse(Path.GetFileNameWithoutExtension(s).Substring(15))).ToList<string>();
-			if (Directory.Exists(Path.Combine(Settings.user.JC3Folder, "dlc")))
-			{
-				var dlcFileLists = Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "dlc"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")).ToList<string>();
-				dlcFileLists = dlcFileLists.OrderBy(s => int.Parse(Path.GetFileNameWithoutExtension(s).Substring(15))).ToList<string>();
-				fileLists.AddRange(dlcFileLists);
-			}
-			if (Directory.Exists(Path.Combine(Settings.user.JC3Folder, "patch_win64")))
-			{
-				var patchFileLists = Directory.EnumerateFiles(Path.Combine(Settings.user.JC3Folder, "patch_win64")).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")).ToList<string>();
-				patchFileLists = patchFileLists.OrderBy(s => int.Parse(Path.GetFileNameWithoutExtension(s).Substring(15))).ToList<string>();
-				fileLists.AddRange(patchFileLists);
-			}
+
+			var dlcFileLists = Directory.EnumerateFiles(Path.Combine(Settings.files, "Filenames", "dlc"), "*", SearchOption.AllDirectories).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")).ToList<string>();
+			dlcFileLists = dlcFileLists.OrderBy(s => int.Parse(Path.GetFileNameWithoutExtension(s).Substring(15))).ToList<string>();
+			fileLists.AddRange(dlcFileLists);
+
+			var patchFileLists = Directory.EnumerateFiles(Path.Combine(Settings.files, "Filenames", "patch_win64")).Where(name => Regex.IsMatch(name, "game_hash_names[0-9]+\\.txt")).ToList<string>();
+			patchFileLists = patchFileLists.OrderBy(s => int.Parse(Path.GetFileNameWithoutExtension(s).Substring(15))).ToList<string>();
+			fileLists.AddRange(patchFileLists);
 
 
 			var fileInfos = new List<DefaultFileInformation>();

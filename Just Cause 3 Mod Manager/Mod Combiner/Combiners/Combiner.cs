@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 
-namespace Just_Cause_3_Mod_Combiner
+namespace Just_Cause_3_Mod_Manager
 {
 	public class Combiner
 	{
@@ -12,9 +12,8 @@ namespace Just_Cause_3_Mod_Combiner
 		public static List<string> rootFiles;
 		public static bool notifyCollissions;
 
-		public static void Combine(List<string> files, bool notifyCollissions)
+		public static void Combine(List<string> files, bool notifyCollissions, string folder)
 		{
-			Settings.SetBusyContent("Combining...");
 			rootFiles = files;
 			Combiner.notifyCollissions = notifyCollissions;
 
@@ -24,12 +23,12 @@ namespace Just_Cause_3_Mod_Combiner
 				throw new ArgumentException("Can't combine " + Path.GetExtension(files[0]) + " files. If you need to combine these files, let me know at jc3mods.com");
 			}
 
-			var originalFiles = DefaultFiles.GetFile(Path.GetFileName(files[0]));
+			var originalFiles = GameFiles.GetDefaultFiles(Path.GetFileName(files[0]));
 			if (originalFiles.Count == 0)
 			{
 				throw new Exception("Couldn't find default files for " + Path.GetFileName(files[0]));
 			}
-			var outputPath = Path.Combine(Settings.user.JC3Folder, "dropzone", originalFiles[0].Substring(Settings.defaultFiles.Length + 1));
+			var outputPath = Path.Combine(Settings.user.JC3Folder, folder, originalFiles[0].Substring(Settings.defaultFiles.Length + 1));
 			var name = Path.GetFileNameWithoutExtension(outputPath);
 			outputPath = Path.GetDirectoryName(outputPath) + "\\" + name.Substring(0, name.LastIndexOf('_')) + Path.GetExtension(outputPath);
 			Combine(originalFiles, files, FileFormats.GetFileFormat(originalFiles[0]), outputPath);
@@ -42,8 +41,6 @@ namespace Just_Cause_3_Mod_Combiner
 
 			if (fileFormat == FileFormat.Property)
 			{
-				Settings.SetBusyContent("Combining " + Path.GetFileName(originalFiles[0]));
-
 				List<string> originalXml = originalFiles.Select(originalFile => GibbedsTools.ConvertProperty(originalFile, TempFolder.GetTempFile(), GibbedsTools.ConvertMode.Export)).ToList();
 				List<string> xmlFiles = files.Select(originalFile => GibbedsTools.ConvertProperty(originalFile, TempFolder.GetTempFile(), GibbedsTools.ConvertMode.Export)).ToList();
 
@@ -54,9 +51,13 @@ namespace Just_Cause_3_Mod_Combiner
 			}
 			else if (fileFormat == FileFormat.Adf)
 			{
-				Settings.SetBusyContent("Combining " + Path.GetFileName(originalFiles[0]));
+				List<string> originalXml = originalFiles.Select(originalFile => GibbedsTools.ConvertProperty(originalFile, TempFolder.GetTempFile(), GibbedsTools.ConvertMode.Export)).ToList();
+				List<string> xmlFiles = files.Select(originalFile => GibbedsTools.ConvertProperty(originalFile, TempFolder.GetTempFile(), GibbedsTools.ConvertMode.Export)).ToList();
 
-				OverrideCombine(originalFiles, files, outputPath, true);
+				var xmlOutputPath = TempFolder.GetTempFile();
+				Combine(originalXml, xmlFiles, FileFormat.Xml, xmlOutputPath);
+
+				GibbedsTools.ConvertAdf(xmlOutputPath, outputPath);
 			}
 			else if (fileFormat == FileFormat.Xml)
 			{
@@ -69,20 +70,15 @@ namespace Just_Cause_3_Mod_Combiner
 			}
 			else if (fileFormat == FileFormat.Unknown)
 			{
-				Settings.SetBusyContent("Combining " + Path.GetFileName(originalFiles[0]));
-
 				OverrideCombine(originalFiles, files, outputPath, false);
 			}
 			else if (fileFormat == FileFormat.SmallArchive)
 			{
-				Settings.SetBusyContent("Unpacking " + Path.GetFileName(originalFiles[0]));
-
 				var originalUnpacked = originalFiles.Select(file => GibbedsTools.SmallUnpack(file, TempFolder.GetTempFile())).ToList();
 				var unpackedFiles = files.Select(file => GibbedsTools.SmallUnpack(file, TempFolder.GetTempFile())).ToList();
 
 				foreach (string file in Directory.EnumerateFiles(originalUnpacked[originalUnpacked.Count - 1], "*", SearchOption.AllDirectories))
 				{
-					Settings.SetBusyContent("Combining " + Path.GetFileName(file));
 					var correspondingOriginals = new List<string>();
 					foreach (var unpackedFile in originalUnpacked)
 					{
@@ -98,7 +94,6 @@ namespace Just_Cause_3_Mod_Combiner
 
 					Combine(correspondingOriginals, correspondingFiles, FileFormats.GetFileFormat(file), file);
 				}
-				Settings.SetBusyContent("Packing " + Path.GetFileName(originalFiles[0]));
 				GibbedsTools.SmallPack(originalUnpacked[originalUnpacked.Count - 1], outputPath);
 			}
 
@@ -108,13 +103,14 @@ namespace Just_Cause_3_Mod_Combiner
 		{
 			bool allSameSize = true;
 
-			var originalHashes = originalFiles.Select(file => SHA256.ComputeHash(file)).ToList();
+			var originalHashes = originalFiles.Select(file => Util.ComputeSHA256(file)).ToList();
 			var modifiedFileHashes = new Dictionary<string, List<int>>();
 			var size = new FileInfo(files[0]).Length;
 			for (var i = 0; i < files.Count; i++)
 			{
 				var file = files[i];
-				var hash = SHA256.ComputeHash(file);
+
+				var hash = Util.ComputeSHA256(file);
 				if (!originalHashes.Contains(hash))
 				{
 					if (modifiedFileHashes.ContainsKey(hash))

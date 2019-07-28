@@ -7,28 +7,48 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Xml;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Just_Cause_3_Mod_Manager
 {
 
-	public static class ModManager
+	public class ModManager : INotifyPropertyChanged
 	{
-		public static ObservableCollection<Mod> Mods { get; set; }
-		public static ObservableCollection<Category> Categories { get; set; }
+		public static ModManager Instance { get; set; }
 
-		public static void Init()
+		public ObservableCollection<Mod> Mods { get; set; }
+		public ObservableCollection<Category> Categories { get; set; }
+		private bool allCategoriesSelected;
+		public bool AllCategoriesSelected
+		{
+			get { return allCategoriesSelected; }
+			set
+			{
+				if (value == true)
+				{
+					foreach (var cat in Categories)
+						cat.Selected = false;
+				}
+				SetPropertyField(ref allCategoriesSelected, value);
+			}
+		}
+
+		static ModManager()
+		{
+			Instance = new ModManager();
+		}
+
+		private ModManager()
+		{
+		}
+
+		public void Init()
 		{
 			Categories = new ObservableCollection<Category>();
-			Categories.Add(new Category("ALL") { Selected = true });
+			AllCategoriesSelected = true;
 
 			Mods = new ObservableCollection<Mod>();
-
-			Mods.CollectionChanged += (o, e) =>
-			{
-				Categories[0].ModCount += e.NewItems != null ? e.NewItems.Count : 0;
-				Categories[0].ModCount -= e.OldItems != null ? e.OldItems.Count : 0;
-			};
-
 
 			var modsJson = Path.Combine(Settings.files, "mods.json");
 			if (File.Exists(modsJson))
@@ -36,7 +56,7 @@ namespace Just_Cause_3_Mod_Manager
 				try
 				{
 					var mods = JsonConvert.DeserializeObject<ObservableCollection<Mod>>(File.ReadAllText(modsJson), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
-					
+
 					foreach (var m in mods)
 					{
 						if (m.Category != null)
@@ -54,12 +74,10 @@ namespace Just_Cause_3_Mod_Manager
 					Errors.Handle("Failed to restore mods", e);
 				}
 			}
-
 		}
 
-		public static void AddMod(Mod mod)
+		public void AddMod(Mod mod)
 		{
-
 			mod.PropertyChanged += (Object s, PropertyChangedEventArgs args) =>
 			{
 				if (args.PropertyName == "Category")
@@ -77,7 +95,7 @@ namespace Just_Cause_3_Mod_Manager
 			Mods.Add(mod);
 		}
 
-		public static async Task AddMod(string[] files)
+		public async Task<Mod> AddMod(string[] files)
 		{
 			Mod mod = null;
 			await Task.Run(() =>
@@ -98,21 +116,11 @@ namespace Just_Cause_3_Mod_Manager
 				}
 				Util.ExtractAllFilesInDirectory(tempFolder);
 
-				var modFiles = new Dictionary<string, string>();
-				string modInfo = null;
-				foreach (var file in Directory.EnumerateFiles(tempFolder, "*", SearchOption.AllDirectories))
-				{
-					System.Diagnostics.Debug.WriteLine(Path.GetFileName(file));
-					if (GameFiles.IsGameFile(file))
-					{
-						System.Diagnostics.Debug.WriteLine("FOUND");
-						modFiles[Path.GetFileName(file)] = file;
-					}
-					else if (Path.GetFileName(file).Equals("Mod.xml", StringComparison.InvariantCultureIgnoreCase))
-					{
-						modInfo = file;
-					}
-				}
+				string modInfo = Directory.EnumerateFiles(tempFolder, "*", SearchOption.AllDirectories).Where(file => Path.GetFileName(file).Equals("mod.xml", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+				string dropzone = Directory.EnumerateDirectories(tempFolder, "*", SearchOption.AllDirectories).Where(dir => Path.GetFileName(dir).Equals("dropzone", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+				string skyfortress = Directory.EnumerateDirectories(tempFolder, "*", SearchOption.AllDirectories).Where(dir => Path.GetFileName(dir).Equals("dropzone_sky_fortress", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+
 
 				mod = new Mod();
 
@@ -121,7 +129,7 @@ namespace Just_Cause_3_Mod_Manager
 					mod.Id = Guid.NewGuid().ToString("N");
 				} while (Directory.Exists(mod.Folder) || File.Exists(mod.Folder));
 
-				
+
 				if (modInfo != null)
 				{
 					XmlDocument doc = new XmlDocument();
@@ -146,22 +154,29 @@ namespace Just_Cause_3_Mod_Manager
 					}
 				}
 
-				mod.Name = mod.Info.DefaultName;
-
 				Directory.CreateDirectory(mod.Folder);
-				foreach (var file in modFiles.Values)
-				{
-					File.Move(file, Path.Combine(mod.Folder, Path.GetFileName(file)));
-				}
+				if (modInfo != null)
+					File.Move(modInfo, Path.Combine(mod.Folder, "Mod.xml"));
+				if(dropzone != null)
+					Directory.Move(dropzone, Path.Combine(mod.Folder, "dropzone"));
+				if(skyfortress != null)
+					Directory.Move(skyfortress, Path.Combine(mod.Folder, "dropzone_sky_fortress"));
+
 			});
 
-			if (mod.Name == null && files.Length == 1 && File.Exists(files[0]) && !GameFiles.IsGameFile(files[0]))//Probably archive lol
-				mod.Name = Path.GetFileNameWithoutExtension(files[0]).Replace("-", " ").Replace("_", " ");
+			if(files.Length == 1){
+				var file = files[0];
+				if(Directory.Exists(file) && !file.Equals("dropzone",StringComparison.InvariantCultureIgnoreCase))
+					mod.Name = Path.GetFileNameWithoutExtension(file).Replace("-", " ").Replace("_", " ");
+				if(File.Exists(file) && (file.EndsWith("zip") || file.EndsWith("rar") ||file.EndsWith("7z")))
+					mod.Name = Path.GetFileNameWithoutExtension(file).Replace("-", " ").Replace("_", " ");
+			}
 
 			AddMod(mod);
+			return mod;
 		}
 
-		public static Category GetCategory(string name)
+		public Category GetCategory(string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				return null;
@@ -169,15 +184,44 @@ namespace Just_Cause_3_Mod_Manager
 			if (cats.Length > 0)
 				return cats[0];
 			var category = new Category(name);
+			category.PropertyChanged += (sender, e) =>
+			{
+				if (e.PropertyName == "Selected" && ((Category)sender).Selected)
+				{
+					AllCategoriesSelected = false;
+					foreach (var cat in Categories)
+					{
+						if (cat != sender && cat.Selected)
+							cat.Selected = false;
+					}
+				}
+			};
 			Categories.Add(category);
 			return category;
 		}
 
-		public static void Save()
+		public void Save()
 		{
 			var path = Path.Combine(Settings.files, "mods.json");
 			File.WriteAllText(path, JsonConvert.SerializeObject(Mods, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto }));
 		}
+
+		protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null)
+		{
+			System.Diagnostics.Debug.WriteLine("Value: " + newValue.ToString());
+
+			if (!EqualityComparer<T>.Default.Equals(field, newValue))
+			{
+				field = newValue;
+				PropertyChangedEventHandler handler = PropertyChanged;
+				System.Diagnostics.Debug.WriteLine("Null: " + (handler == null));
+				if (handler != null)
+					handler(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
 
 	}
 

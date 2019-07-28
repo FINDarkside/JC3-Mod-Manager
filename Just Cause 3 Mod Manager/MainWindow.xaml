@@ -17,8 +17,8 @@
 		<local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<local:StringToUpperCaseConverter x:Key="StringToUpperCaseConverter" />
 		<local:ModVisibilityConverter x:Key="ModVisibilityConverter" />
-		<local:RemoveFirstItemConverter x:Key="RemoveFirstItemConverter" />
 		<local:DivideAndFloorConverter x:Key="DivideAndFloorConverter" />
+		<local:ModCardWidthConverter x:Key="ModCardWidthConverter" />
 
 		<system:Double x:Key="ModPreferredWidth">400</system:Double>
 
@@ -39,7 +39,6 @@
 						CANCEL
 					</Button>
 				</StackPanel>
-
 			</StackPanel>
 		</DataTemplate>
 
@@ -104,37 +103,53 @@
 		<DataTemplate DataType="{x:Type local:Mod}">
 			<StackPanel Margin="20" MinWidth="200">
 				<TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" materialDesign:TextFieldAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-				<ComboBox Text="{Binding Category, Converter={StaticResource CategoryToStringConverter}, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Source={x:Static local:ModManager.Categories}}" IsEditable="True" materialDesign:TextFieldAssist.Hint="Category" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+				<ComboBox Text="{Binding Category, Converter={StaticResource CategoryToStringConverter}, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Source={x:Static local:ModManager.Instance}, Path=Categories}" 
+						  IsEditable="True" materialDesign:TextFieldAssist.Hint="Category" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0 5 0 0"/>
 				<Button  Margin="0 15 0 0" IsDefault="True" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" Style="{DynamicResource MaterialDesignFlatButton}">Ok</Button>
 			</StackPanel>
 		</DataTemplate>
 	</Window.Resources>
 	
 	
-	<materialDesign:DialogHost Name="BusyDialog">
-		<materialDesign:DialogHost.DialogContent>
-			<StackPanel>
-				<TextBlock Name="BusyContent" Margin="10">Busy...</TextBlock>
-				<ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
-                     Value="0" IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="12 12 12 12" />
-			</StackPanel>
-		</materialDesign:DialogHost.DialogContent>
-		<DockPanel>
-			<materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
-                                          Mode="PrimaryMid" DockPanel.Dock="Top">
+	<materialDesign:DialogHost Name="BusyDialog" IsOpen="False">
+		<materialDesign:DialogHost.Resources>
+			<DataTemplate DataType="{x:Type local:BusyDialogViewModel}">
 				<StackPanel>
-					<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22">Just Cause 3 Mod Manager</TextBlock>
+					<TextBlock Margin="10" Text="{Binding Text, Mode=OneWay}"></TextBlock>
+					<ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                     Value="0" IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="12 12 12 12" />
 				</StackPanel>
-			</materialDesign:ColorZone>
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="*"/>
-					<RowDefinition Height="auto"/>
-				</Grid.RowDefinitions>
-				<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-					<StackPanel DockPanel.Dock="Top" Margin="10">
-						<WrapPanel>
-							<ItemsControl ItemsSource="{Binding Source={x:Static local:ModManager.Categories}}">
+			</DataTemplate>
+			<DataTemplate DataType="{x:Type local:ProgressDialogViewModel}">
+				<StackPanel MinWidth="200">
+					<TextBlock Margin="10" Text="{Binding Text, Mode=OneWay}"></TextBlock>
+					<ProgressBar Value="{Binding Progress, Mode=OneWay}" Margin="0 5 0 0" />
+				</StackPanel>
+			</DataTemplate>
+		</materialDesign:DialogHost.Resources>
+		
+			<DockPanel>
+				<materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                          Mode="PrimaryMid" DockPanel.Dock="Top">
+					<StackPanel>
+						<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22">Just Cause 3 Mod Manager</TextBlock>
+					</StackPanel>
+				</materialDesign:ColorZone>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
+
+					<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+						<StackPanel DockPanel.Dock="Top" Margin="10">
+							<ItemsControl>
+								<ItemsControl.ItemsSource>
+									<CompositeCollection>
+										<local:Chip Selected="{Binding Source={x:Static local:ModManager.Instance}, Path=AllCategoriesSelected, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FirstValue="ALL" SecondValue="{Binding Source={x:Static local:ModManager.Instance}, Path=Mods.Count}" Margin="0 5 15 5"></local:Chip>
+										<CollectionContainer Collection="{Binding Source={x:Static local:ModManager.Instance}, Path=Categories}"/>
+									</CompositeCollection>
+								</ItemsControl.ItemsSource>
 								<ItemsControl.ItemsPanel>
 									<ItemsPanelTemplate>
 										<WrapPanel/>
@@ -146,72 +161,75 @@
 									</DataTemplate>
 								</ItemsControl.ItemTemplate>
 							</ItemsControl>
-						</WrapPanel>
-						<ItemsControl ItemsSource="{Binding Source={x:Static local:ModManager.Mods}}">
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<UniformGrid Columns="{Binding ActualWidth, RelativeSource={RelativeSource Self}, Converter={StaticResource DivideAndFloorConverter} ,ConverterParameter={StaticResource ModPreferredWidth}}"/>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth1" Margin="5 10 5 0">
-										<materialDesign:Card.Visibility>
-											<MultiBinding Converter="{StaticResource ModVisibilityConverter}">
-												<Binding Path="Category.Selected"/>
-												<Binding Source="{x:Static local:ModManager.Categories}" Path="[0].Selected" />
-											</MultiBinding>
-										</materialDesign:Card.Visibility>
-										<Grid>
-											<Grid.ColumnDefinitions>
-												<ColumnDefinition Width="*"></ColumnDefinition>
-												<ColumnDefinition Width="auto"></ColumnDefinition>
-											</Grid.ColumnDefinitions>
-											<StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5">
-												<Grid Margin="0 0 10 0">
-													<ToggleButton IsChecked="{Binding Active}" Style="{StaticResource MaterialDesignSwitchToggleButton}" VerticalAlignment="Center" />
-												</Grid>
-												<StackPanel>
-													<TextBlock Text="{Binding Name}"></TextBlock>
-													<StackPanel Orientation="Horizontal" Margin="0 5 0 0">
-														<materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Foreground="#666" />
-														<TextBlock VerticalAlignment="Center" Text="{Binding Info.Author}"></TextBlock>
+							<ItemsControl ItemsSource="{Binding Source={x:Static local:ModManager.Instance}, Path=Mods}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<!-- <UniformGrid Columns="{Binding ActualWidth, RelativeSource={RelativeSource Self}, Converter={StaticResource DivideAndFloorConverter} ,ConverterParameter={StaticResource ModPreferredWidth}}"/> -->
+										<WrapPanel></WrapPanel>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth1" Margin="5 10 5 0" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=ActualWidth, Converter={StaticResource ModCardWidthConverter}}">
+											<materialDesign:Card.Visibility>
+												<MultiBinding Converter="{StaticResource ModVisibilityConverter}">
+													<Binding Path="Category.Selected"/>
+													<Binding Source="{x:Static local:ModManager.Instance}" Path="AllCategoriesSelected" />
+												</MultiBinding>
+											</materialDesign:Card.Visibility>
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="*"></ColumnDefinition>
+													<ColumnDefinition Width="auto"></ColumnDefinition>
+												</Grid.ColumnDefinitions>
+												<StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5">
+													<Grid Margin="0 0 10 0">
+														<ToggleButton IsChecked="{Binding Active}" Style="{StaticResource MaterialDesignSwitchToggleButton}" VerticalAlignment="Center" />
+													</Grid>
+													<StackPanel>
+														<TextBlock Text="{Binding Name}"></TextBlock>
+														<StackPanel Orientation="Horizontal" Margin="0 5 0 0">
+															<materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Foreground="#666" />
+															<TextBlock VerticalAlignment="Center" Text="{Binding Info.Author}"></TextBlock>
+														</StackPanel>
 													</StackPanel>
 												</StackPanel>
-											</StackPanel>
-											<StackPanel Grid.Column="1" Orientation="Horizontal">
-												<Button Command="{Binding OpenModPageCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
+												<StackPanel Grid.Column="1" Orientation="Horizontal">
+													<Button Command="{Binding OpenModPageCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
 													HorizontalAlignment="Left" Height="34" Width="34" ToolTip="Update" Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVisibilityConverter}}">
-													<materialDesign:PackIcon Kind="NewBox" Height="24" Width="24" />
-												</Button>
-												<Button Command="{Binding EditCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
+														<materialDesign:PackIcon Kind="NewBox" Height="24" Width="24" />
+													</Button>
+													<Button Command="{Binding EditCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
 													HorizontalAlignment="Left" Height="34" Width="34" ToolTip="Edit">
-													<materialDesign:PackIcon Kind="Pencil" Height="24" Width="24"/>
-												</Button>
-												<Button Command="{Binding ShowSettingsCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
+														<materialDesign:PackIcon Kind="Pencil" Height="24" Width="24"/>
+													</Button>
+													<Button Command="{Binding ShowSettingsCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
 													HorizontalAlignment="Left" Height="34" Width="34" ToolTip="Settings" Visibility="{Binding Info.Settings, Converter={StaticResource ObjectToVisibilityConverter}}">
-													<materialDesign:PackIcon Kind="Settings" Height="24" Width="24" />
-												</Button>
-												<Button Command="{Binding DeleteCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
+														<materialDesign:PackIcon Kind="Settings" Height="24" Width="24" />
+													</Button>
+													<Button Command="{Binding DeleteCommand}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="0 0 8 0" 
 													HorizontalAlignment="Left" Height="34" Width="34" ToolTip="Delete">
-													<materialDesign:PackIcon Kind="Delete" Height="24" Width="24" />
-												</Button>
-											</StackPanel>
-										</Grid>
-									</materialDesign:Card>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
-					</StackPanel>
-				</ScrollViewer>
-				<Grid Grid.Row="1" Margin="0 0 5 5">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*"/>
-						<ColumnDefinition Width="auto"/>
-					</Grid.ColumnDefinitions>
-					<Button Grid.Column="1" MinWidth="50" Width="200" MaxWidth="200">Apply</Button>
+														<materialDesign:PackIcon Kind="Delete" Height="24" Width="24" />
+													</Button>
+												</StackPanel>
+											</Grid>
+										</materialDesign:Card>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+					</ScrollViewer>
+					<Grid Grid.Row="1" Margin="0 0 5 5">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="auto"/>
+						</Grid.ColumnDefinitions>
+						<Button Grid.Column="1" MinWidth="50" Width="200" MaxWidth="200" Click="Button_Click">Apply</Button>
+					</Grid>
+					<Button Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}" Margin="0 -25 25 0" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50" Width="50" ToolTip="Add mod" materialDesign:ShadowAssist.ShadowDepth="Depth3" Click="AddModClicked">
+						<materialDesign:PackIcon Kind="Plus" Height="26" Width="26" />
+					</Button>
 				</Grid>
-			</Grid>
-		</DockPanel>
+			</DockPanel>
 	</materialDesign:DialogHost>
 </Window>

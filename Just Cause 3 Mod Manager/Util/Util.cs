@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,16 @@ namespace Just_Cause_3_Mod_Manager
 {
 	public static class Util
 	{
+		public static string ComputeSHA256(string file)
+		{
+			using (var stream = new BufferedStream(File.OpenRead(file), 1200000))
+			{
+				SHA256Managed sha = new SHA256Managed();
+				byte[] checksum = sha.ComputeHash(stream);
+				return BitConverter.ToString(checksum).Replace("-", String.Empty);
+			}
+		}
+
 		public static string GetUniqueFile(string preferredFile)
 		{
 			int num = 1;

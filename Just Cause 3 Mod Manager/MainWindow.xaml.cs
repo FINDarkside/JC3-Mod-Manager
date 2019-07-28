@@ -30,9 +30,8 @@ namespace Just_Cause_3_Mod_Manager
 #if !DEBUG
 			CheckForUpdates();
 #endif
-			TaskManager.AddBackgroundTask("Loading jc3 file names", GameFiles.LoadFileNamesAsync());
 
-			ModManager.Init();
+			ModManager.Instance.Init();
 
 			InitializeComponent();
 			Title += " r" + Settings.revision;
@@ -74,23 +73,46 @@ namespace Just_Cause_3_Mod_Manager
 
 		public async void FileDrop(object sender, DragEventArgs e)
 		{
-			await TaskManager.WaitForTasks();
-			TaskManager.SetBusyContent("Installing mod");
 			if (e.Data.GetDataPresent(DataFormats.FileDrop))
 			{
 				string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-				try
-				{
-					await ModManager.AddMod(files);
-				}
-				catch (Exception ex)
-				{
-					Errors.Handle("Failed to install mod", ex);
-				}
-
+				await AddMods(files);
 			}
-			TaskManager.SetBusyContent(null);
-			TaskManager.AddBackgroundTask("Deleting temporary files" ,TempFolder.ClearAsync());
+		}
+
+		private async void AddModClicked(object sender, RoutedEventArgs e)
+		{
+			var d = new VistaOpenFileDialog();
+			d.Multiselect = true;
+			if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+				await AddMods(d.FileNames);
+			}
+		}
+
+		private async Task AddMods(string[] files)
+		{
+			await TaskManager.WaitForTasks();
+			var busyModel = new BusyDialogViewModel() { Text = "Installing mod" };
+			BusyDialog.DialogContent = busyModel;
+			BusyDialog.IsOpen = true;
+
+
+			Mod mod = null;
+			try
+			{
+				mod = await ModManager.Instance.AddMod(files);
+			}
+			catch (Exception ex)
+			{
+				Errors.Handle("Failed to install mod", ex);
+			}
+			BusyDialog.IsOpen = false;
+			TaskManager.AddBackgroundTask("Deleting temporary files", TempFolder.ClearAsync());
+			if (mod != null && string.IsNullOrEmpty(mod.Name))
+			{
+				await MaterialDesignThemes.Wpf.DialogHost.Show(mod);
+			}
 		}
 
 		private static void CheckForUpdates()
@@ -119,14 +141,14 @@ namespace Just_Cause_3_Mod_Manager
 			}
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
-		{
-			ModManager.AddMod(new Mod() { Name = "testmod" });
-		}
-
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			ModManager.Save();
+			ModManager.Instance.Save();
+		}
+
+		private void Button_Click(object sender, RoutedEventArgs e)
+		{
+			ModInstaller.InstallMods(ModManager.Instance.Mods);
 		}
 
 	}

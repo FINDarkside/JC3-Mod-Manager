@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Just_Cause_3_Mod_Combiner
+namespace Just_Cause_3_Mod_Manager
 {
 	public enum FileFormat
 	{
@@ -50,8 +50,6 @@ namespace Just_Cause_3_Mod_Combiner
 			else if (unknownExtensions.Contains(extension))
 				return FileFormat.Unknown;
 
-			System.Diagnostics.Debug.WriteLine("Defining file format of ." + extension);
-
 			if (GibbedsTools.CanConvert(file, GibbedsTools.convertAdf))
 			{
 				adfExtensions.Add(extension);
@@ -83,13 +81,11 @@ namespace Just_Cause_3_Mod_Combiner
 			{
 				return false;
 			}
-			Settings.SetBusyContent("Determining file format for " + Path.GetFileName(file));
 			FileFormat format = FileFormat.Unknown;
 			await Task.Run(() =>
 			{
 				format = FileFormats.GetFileFormat(file);
 			});
-			Settings.SetBusyContent(null);
 
 			return format != FileFormat.Unknown;
 		}

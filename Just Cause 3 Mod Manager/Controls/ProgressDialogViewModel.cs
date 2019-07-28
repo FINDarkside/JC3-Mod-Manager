@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,35 +8,27 @@ using System.Threading.Tasks;
 
 namespace Just_Cause_3_Mod_Manager
 {
-	public class Category : INotifyPropertyChanged
+	public class ProgressDialogViewModel
 	{
-		public string Name { get; set; }
-		private bool selected;
-		public bool Selected
+		private string text;
+		public string Text
 		{
-			get { return selected; }
-			set
-			{
-				SetPropertyField(ref selected, value);
-			}
+			get { return text; }
+			set { SetPropertyField(ref text, value); }
 		}
 
-		private int modCount;
-		[JsonIgnore]
-		public int ModCount
+		private double progress;
+		public double Progress
 		{
-			get { return modCount; }
-			set { SetPropertyField(ref modCount, value); }
+			get { return progress; }
+			set { SetPropertyField(ref progress, value); }
 		}
 
-		public Category(string name)
+		private bool isOpen;
+		public bool IsOpen
 		{
-			Name = name;
-		}
-
-		public override string ToString()
-		{
-			return Name;
+			get { return isOpen; }
+			set { SetPropertyField(ref isOpen, value); }
 		}
 
 		protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null)
@@ -53,4 +44,6 @@ namespace Just_Cause_3_Mod_Manager
 
 		public event PropertyChangedEventHandler PropertyChanged;
 	}
+
+
 }

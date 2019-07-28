@@ -35,6 +35,9 @@ namespace Just_Cause_3_Mod_Manager
 				user = new UserSettings();
 			user.JC3Folder = @"C:\Program Files (x86)\Steam\SteamApps\common\Just Cause 3\";
 
+			Directory.CreateDirectory(Path.Combine(user.JC3Folder, "dropzone"));
+			Directory.CreateDirectory(Path.Combine(user.JC3Folder, "dropzone_sky_fortress"));
+
 			var localPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "JC3 Mod Manager");
 			Directory.CreateDirectory(localPath);
 			var localDataPath = Path.Combine(localPath, "data.json");
